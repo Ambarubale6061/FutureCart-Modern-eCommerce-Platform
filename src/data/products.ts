@@ -1,4 +1,6 @@
 import { categories, getBrands } from "./categories";
+import { supabase } from "@/integrations/supabase/client";
+import { dbProductToProduct } from "@/lib/productAdapter";
 
 export interface Product {
   id: string;
@@ -19,6 +21,7 @@ export interface Product {
   inStock: boolean;
 }
 
+// ---- Local product generator (unchanged) ----
 const productImages: Record<string, string[]> = {
   electronics: [
     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop",
@@ -175,8 +178,30 @@ function generateProducts(): Product[] {
   return products;
 }
 
-export const allProducts = generateProducts();
+// ---- Mutable product array that holds both local and DB products ----
+export let allProducts: Product[] = generateProducts();
 
+let dbLoaded = false;
+export async function loadDbProductsAndMerge() {
+  if (dbLoaded) return;
+  try {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("approval_status", "approved");
+    if (data && data.length) {
+      const dbProducts = data.map(dbProductToProduct);
+      const existingIds = new Set(allProducts.map(p => p.id));
+      const newProducts = dbProducts.filter(p => !existingIds.has(p.id));
+      allProducts = [...allProducts, ...newProducts];
+    }
+    dbLoaded = true;
+  } catch (error) {
+    console.error("Failed to load DB products:", error);
+  }
+}
+
+// ---- Helper functions (work with the merged allProducts) ----
 export const getProductById = (id: string): Product | undefined =>
   allProducts.find((p) => p.id === id);
 

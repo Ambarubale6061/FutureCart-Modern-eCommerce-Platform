@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 const Profile = () => {
-  const { user, profile, isAuthenticated, isAdmin, logout, updateProfile, removeAddress, addresses, orders } = useAuth();
+  const { user, profile, isAuthenticated, isAdmin, updateProfile, removeAddress, addresses, orders } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"profile" | "orders" | "addresses">("profile");
   const [editMode, setEditMode] = useState(false);
@@ -75,8 +75,10 @@ const Profile = () => {
                       <ChevronRight size={14} />
                     </Link>
                   )}
-                  <button onClick={async () => { await logout(); navigate("/"); toast.success("Logged out!"); }}
-                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-destructive hover:bg-muted">
+                  <button 
+                    onClick={() => navigate("/logout")}
+                    className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-destructive hover:bg-muted"
+                  >
                     <LogOut size={16} /> Logout
                   </button>
                 </nav>

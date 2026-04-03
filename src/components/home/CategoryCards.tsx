@@ -4,30 +4,35 @@ import { categories } from "@/data/categories";
 
 const CategoryCards = () => {
   return (
-    <section className="bg-card py-4">
-      <div className="mx-auto max-w-[1400px] px-4">
-        <div className="flex items-center gap-4 overflow-x-auto pb-2">
+    <section className="border-b border-border/40 bg-card/60 backdrop-blur-sm">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6">
+        <div className="scrollbar-hide flex items-center gap-3 overflow-x-auto py-3 sm:gap-4">
           {categories.map((cat, i) => (
             <motion.div
               key={cat.id}
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.3 }}
+              transition={{ delay: i * 0.04, duration: 0.25 }}
+              className="flex-shrink-0"
             >
               <Link
                 to={`/products?category=${cat.id}`}
-                className="flex min-w-[120px] flex-col items-center gap-2 rounded-lg p-3 transition-all hover:shadow-lg hover:bg-muted/50 group"
+                className="group flex flex-col items-center gap-1.5"
               >
-                <div className="relative overflow-hidden rounded-full">
-                  <motion.img
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
+                <motion.div
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.94 }}
+                  className="relative h-16 w-16 overflow-hidden rounded-2xl border border-border/40 bg-background transition-all group-hover:border-primary/40 group-hover:shadow-card"
+                >
+                  <img
                     src={cat.image}
                     alt={cat.name}
-                    className="h-20 w-20 rounded-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
-                </div>
-                <span className="text-center text-xs font-semibold text-card-foreground group-hover:text-primary transition-colors">{cat.name}</span>
+                </motion.div>
+                <span className="text-[10px] font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {cat.name}
+                </span>
               </Link>
             </motion.div>
           ))}

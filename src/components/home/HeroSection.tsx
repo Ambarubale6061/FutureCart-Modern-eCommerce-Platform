@@ -1,90 +1,146 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Star } from "lucide-react";
-import { allProducts } from "@/data/products";
+
+// Animation Variants
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay },
+  }),
+};
 
 const HeroSection = () => {
-  const featured = allProducts.find((p) => p.category === "mobiles" && p.rating >= 4.5) || allProducts[0];
-
   return (
-    <section className="mx-auto max-w-[1400px] px-4 pt-8 pb-4">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-        <div className="flex flex-col justify-center lg:col-span-3">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl"
-          >
-            SHOP LATEST<br />
-            TECHNOLOGICAL PRODUCTS
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
-            className="mt-4 max-w-md text-sm text-muted-foreground leading-relaxed"
-          >
-            Unleash tomorrow's technology today; elevating your world with{" "}
-            <span className="font-semibold text-accent">innovative solutions</span> and unparalleled performance!
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-            className="mt-6 flex items-center gap-3"
-          >
-            <Link
-              to="/products"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-foreground active:text-primary transition-colors"
+    <section className="relative w-full bg-white py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          
+          {/* LEFT CONTENT */}
+          <div className="flex flex-col space-y-8">
+            <motion.div
+              custom={0}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
             >
-              Explore all products
-              <motion.span whileTap={{ scale: 0.9 }} className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                <ArrowRight size={16} />
-              </motion.span>
-            </Link>
-          </motion.div>
-          <div className="mt-8 flex gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-accent" />
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-            <span className="h-2.5 w-2.5 rounded-full bg-border" />
-          </div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="relative lg:col-span-2"
-        >
-          <Link to={`/product/${featured.id}`} className="block">
-            <motion.div whileTap={{ scale: 0.98 }} className="relative overflow-hidden rounded-3xl bg-muted/40 p-6">
-              <span className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-accent-foreground">
-                %{featured.discount}
-              </span>
-              <div className="mx-auto h-[220px] w-[220px] sm:h-[280px] sm:w-[280px]">
-                <img src={featured.image} alt={featured.name} className="h-full w-full object-contain" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground">{featured.brand}</p>
-                <h3 className="text-sm font-bold text-foreground">{featured.name.slice(0, 30)}</h3>
-                <div className="mt-1 flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={12} className={i < Math.round(featured.rating) ? "fill-accent text-accent" : "text-border"} />
-                  ))}
-                  <span className="ml-1 text-[10px] text-muted-foreground">{featured.reviewsCount} reviews</span>
-                </div>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-lg font-black text-foreground">₹{featured.price.toLocaleString()}</span>
-                  <span className="text-sm text-muted-foreground line-through">₹{featured.originalPrice.toLocaleString()}</span>
-                </div>
-                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                  View more <ArrowRight size={14} />
-                </div>
-              </div>
+              <h1 className="text-[42px] font-bold tracking-tight text-[#1a1a1a] sm:text-5xl lg:text-[54px] leading-[1.1]">
+                SHOP <span className="relative inline-block">
+                  LATEST
+                  {/* Underline SVG */}
+                  <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 138 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 8.5C35.5 3.5 102.5 1 137 8.5" stroke="#f9a03f" strokeWidth="4" strokeLinecap="round"/>
+                  </svg>
+                </span>
+                <br />
+                TECHNOLOGICAL PRODUCTS
+              </h1>
             </motion.div>
-          </Link>
-        </motion.div>
+
+            <motion.p
+              custom={0.1}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="max-w-lg text-lg leading-relaxed text-gray-500"
+            >
+              Unleash tomorrow's technology today: elevating your world with{" "}
+              <span className="text-[#f9a03f]">innovative solutions</span> and unparalleled performance!
+            </motion.p>
+
+            <motion.div
+              custom={0.2}
+              initial="hidden"
+              animate="visible"
+              variants={fadeUp}
+              className="flex items-center"
+            >
+              <Link
+                to="/products"
+                className="group flex items-center gap-4 text-[15px] font-medium text-gray-600 transition-colors hover:text-black"
+              >
+                Explore all products
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f9a03f] text-white shadow-sm">
+                  <ArrowRight size={18} />
+                </span>
+              </Link>
+            </motion.div>
+
+            {/* Pagination Dots */}
+            <div className="flex items-center gap-2 pt-4">
+              <div className="h-1.5 w-1.5 rounded-full bg-gray-100" />
+              <div className="h-2 w-2 rounded-full bg-[#f9a03f]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-gray-100" />
+              <div className="h-1.5 w-1.5 rounded-full bg-gray-100" />
+            </div>
+          </div>
+
+          {/* RIGHT CONTENT - EXACT REPLICA OF SCREENSHOT */}
+          <motion.div
+            custom={0.3}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="relative"
+          >
+            <div className="relative flex min-h-[400px] items-center rounded-[32px] bg-[#F7F8FA] p-8 sm:p-12">
+              
+              {/* Discount Badge */}
+              <div className="absolute -right-2 -top-2 z-20 flex h-16 w-16 items-center justify-center rounded-full bg-[#f9a03f] text-sm font-bold text-white">
+                %20
+              </div>
+
+              <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Product Text Side */}
+                <div className="flex flex-col justify-center space-y-4">
+                  <div>
+                    <p className="text-xs font-medium text-gray-400">Apple</p>
+                    <h3 className="mt-1 text-xl font-bold text-gray-900">iPhone 15 Pro 128 GB</h3>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex text-[#f9a03f]">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={14} fill="currentColor" stroke="none" />
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-400">516 reviews</span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-gray-900">$999</span>
+                    <span className="text-base text-gray-300 line-through">$1099</span>
+                  </div>
+
+                  <Link 
+                    to="/product/iphone-15"
+                    className="group flex items-center gap-2 pt-2 text-sm font-medium text-gray-500 transition-colors hover:text-black"
+                  >
+                    View more
+                    <div className="flex items-center">
+                        <div className="h-[1px] w-8 bg-gray-300 transition-all group-hover:w-10 group-hover:bg-black" />
+                        <ArrowRight size={14} className="-ml-1" />
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Product Image Side */}
+                <div className="relative flex items-center justify-end">
+  <img
+    // ही लिंक ट्राय करा, ही Pexels वरून आहे आणि प्युअर व्हाईट बॅकग्राउंड आहे
+    src="https://images.pexels.com/photos/18525574/pexels-photo-18525574/free-photo-of-unboxing-iphone-15-pro-max-titanium-color.jpeg?auto=compress&cs=tinysrgb&w=800"
+    alt="iPhone 15 Pro"
+    // mix-blend-multiply मुळे इमेज बॅकग्राउंडमध्ये विरघळून जाईल
+    className="h-auto w-full max-w-[280px] rounded-2xl object-cover mix-blend-multiply drop-shadow-2xl transition-transform duration-700 hover:scale-105"
+  />
+</div>
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
       </div>
     </section>
   );

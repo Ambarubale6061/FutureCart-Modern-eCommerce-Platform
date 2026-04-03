@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Star, ChevronRightIcon } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ImageGallery from "@/components/product/ImageGallery";
@@ -9,22 +9,24 @@ import ProductInfo from "@/components/product/ProductInfo";
 import { getProductById, getProductsByCategory, Product } from "@/data/products";
 import { useRecentlyViewed } from "@/contexts/RecentlyViewedContext";
 
-const SimilarProductCard = ({ product }: { product: Product }) => (
-  <Link to={`/product/${product.id}`} className="block min-w-[160px] max-w-[170px] flex-shrink-0">
-    <motion.div whileTap={{ scale: 0.96 }}>
-      <div className="mx-auto h-[130px] w-[130px] overflow-hidden rounded-md bg-secondary/30 p-2">
-        <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
+const SimilarCard = ({ product }: { product: Product }) => (
+  <Link to={`/product/${product.id}`} className="block w-[150px] flex-shrink-0 sm:w-[165px]">
+    <motion.div whileHover={{ y: -3 }} whileTap={{ scale: 0.96 }} transition={{ duration: 0.2 }} className="group">
+      <div className="overflow-hidden rounded-2xl bg-muted/30 p-4">
+        <img src={product.image} alt={product.name} className="mx-auto h-[110px] w-[110px] object-contain transition-transform duration-400 group-hover:scale-110" />
       </div>
-      <h3 className="mt-2 truncate text-xs font-medium text-card-foreground">{product.name}</h3>
-      <div className="mt-1 flex items-center gap-1">
-        <span className="inline-flex items-center gap-0.5 rounded bg-flipkart-green px-1.5 py-0.5 text-[10px] font-bold text-white">
-          {product.rating} <Star size={8} fill="currentColor" />
-        </span>
-        <span className="text-[10px] text-muted-foreground">({product.reviewsCount.toLocaleString()})</span>
-      </div>
-      <div className="mt-1 flex items-center gap-2">
-        <span className="text-sm font-bold text-card-foreground">₹{product.price.toLocaleString()}</span>
-        <span className="text-[10px] font-medium text-flipkart-green">{product.discount}% off</span>
+      <div className="mt-2.5 px-0.5">
+        <h3 className="truncate text-xs font-semibold text-foreground">{product.name}</h3>
+        <div className="mt-1 flex items-center gap-1">
+          <span className="inline-flex items-center gap-0.5 rounded-md bg-green-600 px-1.5 py-0.5 text-[9px] font-bold text-white">
+            {product.rating} <Star size={7} fill="currentColor" />
+          </span>
+          <span className="text-[10px] text-muted-foreground">({product.reviewsCount.toLocaleString()})</span>
+        </div>
+        <div className="mt-1 flex items-baseline gap-1.5">
+          <span className="text-sm font-black text-foreground">₹{product.price.toLocaleString()}</span>
+          <span className="text-[10px] font-medium text-green-600">{product.discount}% off</span>
+        </div>
       </div>
     </motion.div>
   </Link>
@@ -34,85 +36,66 @@ const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const product = getProductById(id || "");
   const { addToRecentlyViewed } = useRecentlyViewed();
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (product) addToRecentlyViewed(product);
   }, [product?.id]);
 
+  const scrollRef = { current: null as HTMLDivElement | null };
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
+      scrollRef.current.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
     }
   };
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="page-root">
         <Header />
-        <div className="flex flex-col items-center justify-center py-20">
-          <h2 className="text-xl font-bold text-card-foreground">Product not found</h2>
-          <Link to="/" className="mt-4 text-sm text-primary">Go back to home</Link>
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="text-6xl">📦</div>
+          <h2 className="mt-4 text-lg font-bold text-foreground">Product not found</h2>
+          <p className="mt-1 text-sm text-muted-foreground">This product may have been removed or the link is incorrect.</p>
+          <Link to="/" className="mt-5 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground">Back to Home</Link>
         </div>
         <Footer />
       </div>
     );
   }
 
-  const similarProducts = getProductsByCategory(product.category)
-    .filter((p) => p.id !== product.id)
-    .slice(0, 8);
+  const similarProducts = getProductsByCategory(product.category).filter((p) => p.id !== product.id).slice(0, 12);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-root">
       <Header />
-      <main className="mx-auto max-w-[1400px] px-4 py-4">
-        <div className="mb-3 text-xs text-muted-foreground">
-          Home &gt; {product.category} &gt; {product.subcategory} &gt; {product.brand}
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="rounded-lg bg-card p-6 shadow-sm"
-        >
-          <div className="flex flex-col gap-8 md:flex-row">
-            <div className="md:w-[40%]">
-              <ImageGallery images={product.images} productName={product.name} />
-            </div>
-            <div className="md:w-[60%]">
-              <ProductInfo product={product} />
-            </div>
+      <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6">
+        <nav className="mb-4 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+          <Link to="/" className="hover:text-foreground">Home</Link>
+          <ChevronRightIcon size={11} />
+          <Link to={`/products?category=${product.category}`} className="capitalize hover:text-foreground">{product.category.replace("-", " ")}</Link>
+          <ChevronRightIcon size={11} />
+          <Link to={`/products?category=${product.category}`} className="hover:text-foreground">{product.brand}</Link>
+          <ChevronRightIcon size={11} />
+          <span className="max-w-[180px] truncate text-foreground">{product.name}</span>
+        </nav>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }} className="overflow-hidden rounded-2xl border border-border/40 bg-card shadow-card">
+          <div className="flex flex-col gap-6 p-4 md:flex-row md:gap-8 md:p-6 lg:p-8">
+            <div className="md:w-[42%] lg:w-[40%]"><ImageGallery images={product.images} productName={product.name} /></div>
+            <div className="flex-1"><ProductInfo product={product} /></div>
           </div>
         </motion.div>
-
         {similarProducts.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.3 }}
-            className="mt-4 rounded-lg bg-card p-6 shadow-sm"
-          >
-            <h2 className="mb-4 text-lg font-bold text-card-foreground">Similar Products</h2>
-            <div className="relative">
-              <button
-                onClick={() => scroll("left")}
-                className="absolute -left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border bg-card p-1.5 shadow-md active:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronLeft size={20} className="text-card-foreground" />
-              </button>
-              <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-2">
-                {similarProducts.map((p) => (
-                  <SimilarProductCard key={p.id} product={p} />
-                ))}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mt-4 overflow-hidden rounded-2xl border border-border/40 bg-card shadow-card">
+            <div className="flex items-center justify-between border-b border-border/40 px-5 py-4">
+              <h2 className="text-base font-bold text-foreground">Similar Products</h2>
+              <Link to={`/products?category=${product.category}`} className="flex items-center gap-1 text-xs font-semibold text-primary">View all <ChevronRight size={13} /></Link>
+            </div>
+            <div className="relative px-5 py-5">
+              <button onClick={() => scroll("left")} className="absolute -left-0 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card shadow-md"><ChevronLeft size={16} /></button>
+              <div ref={(el) => (scrollRef.current = el)} className="scrollbar-hide flex gap-4 overflow-x-auto pb-1 pl-2 pr-2">
+                {similarProducts.map((p) => <SimilarCard key={p.id} product={p} />)}
               </div>
-              <button
-                onClick={() => scroll("right")}
-                className="absolute -right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border bg-card p-1.5 shadow-md active:bg-muted active:scale-95 transition-all"
-              >
-                <ChevronRight size={20} className="text-card-foreground" />
-              </button>
+              <button onClick={() => scroll("right")} className="absolute -right-0 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card shadow-md"><ChevronRight size={16} /></button>
             </div>
           </motion.div>
         )}

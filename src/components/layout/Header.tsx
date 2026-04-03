@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, Heart, User, Menu, X, ChevronDown, LogOut, Shield } from "lucide-react";
+import {
+  Search, ShoppingCart, Heart, User, Menu, X,
+  ChevronDown, LogOut, Shield, Package,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -21,118 +24,202 @@ const Header = () => {
     if (searchQuery.trim()) navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
   };
 
-  const displayName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "Account";
+  const displayName =
+    profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "Account";
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("Logged out successfully");
+    setShowDropdown(false);
+    setMobileMenuOpen(false);
+    // No need to call navigate – logout() does window.location.href = "/"
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border/60 shadow-sm">
-      <div className="mx-auto max-w-[1400px] px-4">
-        <div className="flex h-16 items-center gap-4">
-          <button className="text-card-foreground md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+    <header className="sticky top-0 z-50">
+      <div className="border-b border-border/50 bg-card/90 backdrop-blur-xl shadow-sm">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6">
+          <div className="flex h-14 items-center gap-3 sm:h-16 sm:gap-4">
+            <button
+              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
 
-          <Link to="/" className="flex-shrink-0">
-            <span className="text-xl font-bold tracking-tight">
-              <span className="text-primary">Future</span>
-              <span className="text-accent">Cart</span>
-            </span>
-          </Link>
+            <Link to="/" className="flex-shrink-0 select-none">
+              <span className="font-display text-lg font-bold tracking-tight sm:text-xl">
+                <span className="text-primary">Future</span>
+                <span className="text-accent">Cart</span>
+              </span>
+            </Link>
 
-          <form onSubmit={handleSearch} className="hidden flex-1 justify-center md:flex">
-            <div className="relative w-full max-w-[540px]">
+            <form onSubmit={handleSearch} className="hidden flex-1 justify-center md:flex">
+              <div className="relative w-full max-w-[520px]">
+                <input
+                  type="text"
+                  placeholder="Search for products, brands and more…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-border bg-background pl-4 pr-12 text-sm text-foreground placeholder:text-muted-foreground transition-all focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
+                >
+                  <Search size={14} />
+                </button>
+              </div>
+            </form>
+
+            <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
+              <div className="relative hidden md:block">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <User size={14} />
+                  </div>
+                  <span className="max-w-[72px] truncate text-xs font-medium">
+                    {isAuthenticated ? displayName : "Login"}
+                  </span>
+                  <ChevronDown
+                    size={12}
+                    className={`text-muted-foreground transition-transform duration-200 ${showDropdown ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {showDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-1.5 w-52 overflow-hidden rounded-2xl border border-border bg-card py-1.5 shadow-card-lg"
+                    >
+                      {!isAuthenticated ? (
+                        <>
+                          <div className="border-b border-border px-4 py-3">
+                            <p className="text-xs text-muted-foreground">New customer?</p>
+                            <div className="mt-1 flex items-center justify-between">
+                              <span className="text-sm font-semibold text-foreground">Sign up free</span>
+                              <Link
+                                to="/signup"
+                                onClick={() => setShowDropdown(false)}
+                                className="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground"
+                              >
+                                Sign Up
+                              </Link>
+                            </div>
+                          </div>
+                          <Link
+                            to="/login"
+                            onClick={() => setShowDropdown(false)}
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
+                          >
+                            <User size={14} className="text-muted-foreground" /> Login
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <div className="border-b border-border px-4 py-3">
+                            <p className="text-xs text-muted-foreground">Signed in as</p>
+                            <p className="mt-0.5 truncate text-sm font-semibold text-foreground">
+                              {profile?.full_name || user?.email}
+                            </p>
+                          </div>
+                          {[
+                            { to: "/profile", icon: User, label: "My Profile" },
+                            { to: "/profile", icon: Package, label: "My Orders" },
+                            { to: "/wishlist", icon: Heart, label: "Wishlist" },
+                          ].map(({ to, icon: Icon, label }) => (
+                            <Link
+                              key={label}
+                              to={to}
+                              onClick={() => setShowDropdown(false)}
+                              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-muted"
+                            >
+                              <Icon size={14} className="text-muted-foreground" /> {label}
+                            </Link>
+                          ))}
+                          {isAdmin && (
+                            <Link
+                              to="/admin"
+                              onClick={() => setShowDropdown(false)}
+                              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-primary transition-colors hover:bg-muted"
+                            >
+                              <Shield size={14} /> Admin Panel
+                            </Link>
+                          )}
+                          <div className="mx-3 my-1 border-t border-border" />
+                          <button
+  onClick={() => {
+    setShowDropdown(false);
+    navigate("/logout");
+  }}
+  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-destructive transition-colors hover:bg-muted"
+>
+  <LogOut size={14} /> Logout
+</button>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {showDropdown && (
+                  <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
+                )}
+              </div>
+
+              <Link
+                to="/wishlist"
+                className="relative flex h-9 w-9 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted sm:w-auto sm:gap-1.5 sm:px-2.5"
+              >
+                <Heart size={18} />
+                {wishlistCount > 0 && (
+                  <span className="absolute right-1 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white sm:right-1.5">
+                    {wishlistCount}
+                  </span>
+                )}
+                <span className="hidden text-xs font-medium sm:inline">Wishlist</span>
+              </Link>
+
+              <Link
+                to="/cart"
+                className="relative flex h-9 w-9 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted sm:w-auto sm:gap-1.5 sm:px-2.5"
+              >
+                <ShoppingCart size={18} />
+                {totalItems > 0 && (
+                  <span className="absolute right-1 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white sm:right-1.5">
+                    {totalItems}
+                  </span>
+                )}
+                <span className="hidden text-xs font-medium sm:inline">Cart</span>
+              </Link>
+            </div>
+          </div>
+
+          <form onSubmit={handleSearch} className="pb-2.5 md:hidden">
+            <div className="relative">
               <input
                 type="text"
-                placeholder="Search for products, brands and more..."
+                placeholder="Search for products…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-11 w-full rounded-2xl border border-border bg-background pl-5 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                className="h-9 w-full rounded-xl border border-border bg-background pl-4 pr-10 text-sm placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
-              <button type="submit" className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground active:scale-95 transition-transform">
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+              >
                 <Search size={16} />
               </button>
             </div>
           </form>
-
-          <nav className="ml-auto flex items-center gap-1">
-            {/* Login / Profile */}
-            <div className="relative hidden md:block">
-              <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-card-foreground active:bg-muted transition-colors"
-              >
-                <User size={18} />
-                <span className="max-w-[80px] truncate">{isAuthenticated ? displayName : "Login"}</span>
-                <ChevronDown size={14} className={`transition-transform ${showDropdown ? "rotate-180" : ""}`} />
-              </button>
-              <AnimatePresence>
-                {showDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 top-full w-52 rounded-2xl bg-card py-2 shadow-xl border border-border z-50"
-                  >
-                    {!isAuthenticated ? (
-                      <>
-                        <div className="px-4 py-2 border-b border-border">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-card-foreground">New customer?</span>
-                            <Link to="/signup" onClick={() => setShowDropdown(false)} className="text-sm font-medium text-primary">Sign Up</Link>
-                          </div>
-                        </div>
-                        <Link to="/login" onClick={() => setShowDropdown(false)} className="block px-4 py-2.5 text-sm text-card-foreground active:bg-muted mx-1 rounded-lg">Login</Link>
-                      </>
-                    ) : (
-                      <>
-                        <Link to="/profile" onClick={() => setShowDropdown(false)} className="block px-4 py-2.5 text-sm text-card-foreground active:bg-muted mx-1 rounded-lg">My Profile</Link>
-                        <Link to="/profile" onClick={() => setShowDropdown(false)} className="block px-4 py-2.5 text-sm text-card-foreground active:bg-muted mx-1 rounded-lg">My Orders</Link>
-                        <Link to="/wishlist" onClick={() => setShowDropdown(false)} className="block px-4 py-2.5 text-sm text-card-foreground active:bg-muted mx-1 rounded-lg">Wishlist</Link>
-                        {isAdmin && (
-                          <Link to="/admin" onClick={() => setShowDropdown(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-primary active:bg-muted mx-1 rounded-lg">
-                            <Shield size={14} /> Admin Panel
-                          </Link>
-                        )}
-                        <div className="mx-2 my-1 border-t border-border" />
-                        <button onClick={async () => { await logout(); toast.success("Logged out!"); setShowDropdown(false); }} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-destructive active:bg-muted mx-1 rounded-lg">
-                          <LogOut size={14} /> Logout
-                        </button>
-                      </>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {/* Click-away overlay */}
-              {showDropdown && <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />}
-            </div>
-
-            {/* Wishlist */}
-            <Link to="/wishlist" className="relative flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-card-foreground active:bg-muted transition-colors">
-              <Heart size={18} />
-              {wishlistCount > 0 && (
-                <span className="absolute right-1 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">{wishlistCount}</span>
-              )}
-              <span className="hidden md:inline">Wishlist</span>
-            </Link>
-
-            {/* Cart */}
-            <Link to="/cart" className="relative flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-card-foreground active:bg-muted transition-colors">
-              <ShoppingCart size={18} />
-              {totalItems > 0 && (
-                <span className="absolute right-1 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">{totalItems}</span>
-              )}
-              <span className="hidden md:inline">Cart</span>
-            </Link>
-          </nav>
         </div>
-
-        <form onSubmit={handleSearch} className="pb-2 md:hidden">
-          <div className="relative">
-            <input type="text" placeholder="Search for products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 w-full rounded-2xl border border-border bg-background pl-4 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
-            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"><Search size={18} /></button>
-          </div>
-        </form>
       </div>
 
       <AnimatePresence>
@@ -141,19 +228,69 @@ const Header = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden border-t border-border bg-card px-4 md:hidden"
+            transition={{ duration: 0.22 }}
+            className="overflow-hidden border-b border-border bg-card/95 backdrop-blur-xl md:hidden"
           >
-            <nav className="flex flex-col gap-2 py-3">
-              <Link to="/" className="rounded-xl px-3 py-2.5 text-sm text-card-foreground active:bg-muted" onClick={() => setMobileMenuOpen(false)}>Home</Link>
+            <nav className="flex flex-col px-4 py-3 gap-1">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+              >
+                Home
+              </Link>
               {isAuthenticated ? (
                 <>
-                  <Link to="/profile" className="rounded-xl px-3 py-2.5 text-sm text-card-foreground active:bg-muted" onClick={() => setMobileMenuOpen(false)}>My Profile</Link>
-                  {isAdmin && <Link to="/admin" className="rounded-xl px-3 py-2.5 text-sm text-primary active:bg-muted" onClick={() => setMobileMenuOpen(false)}>Admin Panel</Link>}
-                  <button onClick={async () => { await logout(); toast.success("Logged out!"); setMobileMenuOpen(false); }} className="rounded-xl px-3 py-2.5 text-left text-sm text-destructive active:bg-muted">Logout</button>
+                  <Link
+                    to="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  >
+                    My Orders
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="rounded-xl px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-muted"
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button
+  onClick={() => {
+    setMobileMenuOpen(false);
+    navigate("/logout");
+  }}
+  className="rounded-xl px-3 py-2.5 text-left text-sm font-medium text-destructive transition-colors hover:bg-muted"
+>
+  Logout
+</button>
                 </>
               ) : (
-                <Link to="/login" className="rounded-xl px-3 py-2.5 text-sm text-card-foreground active:bg-muted" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-xl bg-primary px-3 py-2.5 text-center text-sm font-semibold text-primary-foreground"
+                  >
+                    Create Account
+                  </Link>
+                </>
               )}
             </nav>
           </motion.div>

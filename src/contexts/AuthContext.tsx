@@ -2,56 +2,11 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
 
-export interface Address {
-  id: string;
-  name: string;
-  phone: string;
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-  type: string;
-  is_default: boolean;
-}
-
-export interface Order {
-  id: string;
-  order_number: string;
-  created_at: string;
-  total_amount: number;
-  discount_amount: number;
-  delivery_charge: number;
-  status: string;
-  payment_method: string | null;
-  address: any;
-  items?: { product_name: string; price: number; quantity: number; product_image: string | null }[];
-}
-
-export interface Profile {
-  full_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-}
-
-interface AuthContextType {
-  user: SupaUser | null;
-  profile: Profile | null;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  loading: boolean;
-  addresses: Address[];
-  orders: Order[];
-  login: (email: string, password: string) => Promise<{ error?: string }>;
-  signup: (name: string, email: string, password: string) => Promise<{ error?: string }>;
-  logout: () => Promise<void>;
-  updateProfile: (updates: Partial<Profile>) => Promise<void>;
-  addAddress: (address: Omit<Address, "id">) => Promise<void>;
-  removeAddress: (id: string) => Promise<void>;
-  fetchOrders: () => Promise<void>;
-  fetchAddresses: () => Promise<void>;
-}
+// ... (keep all interfaces same as before)
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const ADMIN_EMAIL = "futurecart@gmail.com";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<SupaUser | null>(null);
@@ -66,9 +21,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data) setProfile({ full_name: data.full_name, phone: data.phone, avatar_url: data.avatar_url });
   }, []);
 
-  const checkAdmin = useCallback(async (userId: string) => {
-    const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-    setIsAdmin(!!data);
+  const checkAdmin = useCallback((userEmail: string | undefined) => {
+    setIsAdmin(userEmail === ADMIN_EMAIL);
   }, []);
 
   const fetchAddresses = useCallback(async () => {
@@ -104,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(u);
       if (u) {
         await fetchProfile(u.id);
-        await checkAdmin(u.id);
+        checkAdmin(u.email);
       } else {
         setProfile(null);
         setIsAdmin(false);
@@ -119,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(u);
       if (u) {
         fetchProfile(u.id);
-        checkAdmin(u.id);
+        checkAdmin(u.email);
       }
       setLoading(false);
     });
@@ -150,8 +104,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return {};
   };
 
+  // 🔥 BULLETPROOF LOGOUT
   const logout = async () => {
-    await supabase.auth.signOut();
+    try {
+      // 1. Call Supabase signOut (but don't rely on it)
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Supabase signOut error:", err);
+    }
+    
+    // 2. Manually remove all Supabase-related storage
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes("supabase") || key.includes("sb-"))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Also clear sessionStorage
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && (key.includes("supabase") || key.includes("sb-"))) {
+        sessionStorage.removeItem(key);
+      }
+    }
+    
+    // 3. Reset all React state immediately
+    setUser(null);
+    setProfile(null);
+    setIsAdmin(false);
+    setAddresses([]);
+    setOrders([]);
+    
+    // 4. Force a full page reload and redirect to home
+    window.location.replace("/");
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {

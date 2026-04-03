@@ -14,36 +14,46 @@ const NewsletterSection = () => {
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="mx-auto max-w-[1400px] px-4 py-8"
+      className="mx-auto max-w-7xl px-6 py-12"
     >
-      <div className="rounded-3xl bg-card border border-border/30 p-8 md:p-12">
-        <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-black tracking-tight text-foreground sm:text-2xl">
+      {/* Main Box - Now Pure White */}
+      <div className="rounded-[2.5rem] bg-white border border-gray-100 px-10 py-16 md:px-20 shadow-sm">
+        <div className="flex flex-col items-center justify-between gap-10 md:flex-row">
+          
+          {/* Text Content */}
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold leading-tight tracking-tight text-[#1A1A1A]">
               SUBSCRIBE<br />TO THE NEWS
             </h2>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Be aware of all discounts and bargains!<br />Don't miss your benefit!
+            <p className="text-sm leading-relaxed text-gray-400">
+              Be aware of all discounts and bargains!<br />
+              Don't miss your benefit!
             </p>
           </div>
-          <form onSubmit={handleSubscribe} className="flex w-full max-w-md items-center gap-2">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
-            <motion.button
-              type="submit"
-              whileTap={{ scale: 0.95 }}
-              className="h-11 rounded-xl bg-accent px-6 text-sm font-semibold text-accent-foreground active:bg-accent/90 transition-colors"
-            >
-              Subscribe
-            </motion.button>
+
+          {/* Subscription Form */}
+          <form 
+            onSubmit={handleSubscribe} 
+            className="relative flex w-full max-w-lg items-center"
+          >
+            <div className="relative w-full">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="h-16 w-full rounded-full border border-gray-100 bg-white px-8 text-sm text-gray-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] outline-none placeholder:text-gray-400 focus:border-gray-200 transition-all"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 h-12 -translate-y-1/2 rounded-full bg-[#FF9900] px-8 text-[13px] font-medium text-white transition-transform hover:brightness-105 active:scale-95"
+              >
+                Subscribe
+              </button>
+            </div>
           </form>
         </div>
       </div>

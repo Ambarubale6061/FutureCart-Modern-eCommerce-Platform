@@ -10,6 +10,8 @@ import { RecentlyViewedProvider } from "@/contexts/RecentlyViewedContext";
 import ChatBot from "@/components/ChatBot";
 import ScrollToTop from "@/components/ScrollToTop";
 import BackToTop from "@/components/BackToTop";
+
+// Page Imports
 import Index from "./pages/Index";
 import ProductListing from "./pages/ProductListing";
 import ProductDetail from "./pages/ProductDetail";
@@ -25,6 +27,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import AdminDashboard from "./pages/AdminDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
 import NotFound from "./pages/NotFound";
+import Logout from "@/pages/Logout";
 
 const queryClient = new QueryClient();
 
@@ -38,24 +41,28 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <ScrollToTop />
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/products" element={<ProductListing />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/wishlist" element={<Wishlist />} />
-                  <Route path="/search" element={<SearchResults />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/order-tracking/:orderNumber" element={<OrderTracking />} />
-                  <Route path="/payment-success" element={<PaymentSuccess />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/seller" element={<SellerDashboard />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                {/* Ensures every page navigation starts at the top smoothly */}
+                <ScrollToTop /> 
+                <div className="flex flex-col min-h-screen">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/products" element={<ProductListing />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/search" element={<SearchResults />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/logout" element={<Logout />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/order-tracking/:orderNumber" element={<OrderTracking />} />
+                    <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/seller" element={<SellerDashboard />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </div>
                 <ChatBot />
                 <BackToTop />
               </BrowserRouter>

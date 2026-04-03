@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Star, ChevronRightIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, ChevronRightIcon, Loader2 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ImageGallery from "@/components/product/ImageGallery";
 import ProductInfo from "@/components/product/ProductInfo";
-import { getProductById, getProductsByCategory, Product } from "@/data/products";
+import { useProducts } from "@/contexts/ProductsContext";
 import { useRecentlyViewed } from "@/contexts/RecentlyViewedContext";
+import type { Product } from "@/data/products";
 
 const SimilarCard = ({ product }: { product: Product }) => (
   <Link to={`/product/${product.id}`} className="block w-[150px] flex-shrink-0 sm:w-[165px]">
@@ -34,8 +35,10 @@ const SimilarCard = ({ product }: { product: Product }) => (
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const product = getProductById(id || "");
+  const { getProductById, getProductsByCategory, loading } = useProducts();
   const { addToRecentlyViewed } = useRecentlyViewed();
+
+  const product = getProductById(id || "");
 
   useEffect(() => {
     if (product) addToRecentlyViewed(product);
@@ -47,6 +50,22 @@ const ProductDetail = () => {
       scrollRef.current.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
     }
   };
+
+  // Show a neutral loading screen while the catalogue is being fetched.
+  // This prevents a false "Product not found" flash for DB products
+  // whose IDs appear in the URL before the context has loaded.
+  if (loading && !product) {
+    return (
+      <div className="page-root">
+        <Header />
+        <div className="flex flex-col items-center justify-center py-24">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="mt-4 text-sm text-muted-foreground">Loading product…</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -63,7 +82,9 @@ const ProductDetail = () => {
     );
   }
 
-  const similarProducts = getProductsByCategory(product.category).filter((p) => p.id !== product.id).slice(0, 12);
+  const similarProducts = getProductsByCategory(product.category)
+    .filter((p) => p.id !== product.id)
+    .slice(0, 12);
 
   return (
     <div className="page-root">

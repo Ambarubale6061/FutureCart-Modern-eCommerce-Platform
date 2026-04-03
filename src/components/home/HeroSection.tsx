@@ -14,7 +14,7 @@ const fadeUp = {
 
 const HeroSection = () => {
   return (
-    <section className="relative w-full bg-white py-16 lg:py-24">
+    <section className="relative w-full overflow-x-hidden bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           
@@ -26,7 +26,7 @@ const HeroSection = () => {
               animate="visible"
               variants={fadeUp}
             >
-              <h1 className="text-[42px] font-bold tracking-tight text-[#1a1a1a] sm:text-5xl lg:text-[54px] leading-[1.1]">
+              <h1 className="break-words text-[42px] font-bold tracking-tight text-[#1a1a1a] sm:text-5xl lg:text-[54px] leading-[1.1]">
                 SHOP <span className="relative inline-block">
                   LATEST
                   {/* Underline SVG */}
@@ -127,15 +127,13 @@ const HeroSection = () => {
                 </div>
 
                 {/* Product Image Side */}
-                <div className="relative flex items-center justify-end">
-  <img
-    // ही लिंक ट्राय करा, ही Pexels वरून आहे आणि प्युअर व्हाईट बॅकग्राउंड आहे
-    src="https://images.pexels.com/photos/18525574/pexels-photo-18525574/free-photo-of-unboxing-iphone-15-pro-max-titanium-color.jpeg?auto=compress&cs=tinysrgb&w=800"
-    alt="iPhone 15 Pro"
-    // mix-blend-multiply मुळे इमेज बॅकग्राउंडमध्ये विरघळून जाईल
-    className="h-auto w-full max-w-[280px] rounded-2xl object-cover mix-blend-multiply drop-shadow-2xl transition-transform duration-700 hover:scale-105"
-  />
-</div>
+                <div className="relative flex items-center justify-end overflow-hidden rounded-2xl">
+                  <img
+                    src="https://images.pexels.com/photos/18525574/pexels-photo-18525574/free-photo-of-unboxing-iphone-15-pro-max-titanium-color.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    alt="iPhone 15 Pro"
+                    className="h-auto w-full max-w-full rounded-2xl object-cover drop-shadow-2xl transition-transform duration-700 hover:scale-105"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>

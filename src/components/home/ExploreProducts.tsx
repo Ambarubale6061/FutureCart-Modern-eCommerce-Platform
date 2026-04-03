@@ -45,11 +45,11 @@ const ExploreProducts = () => {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 bg-white font-sans overflow-hidden">
+    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 bg-white font-sans overflow-x-hidden">
       {/* ─── HEADER SECTION ─── */}
       <div className="mb-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div className="md:w-1/4">
-          <h2 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+          <h2 className="text-3xl font-bold leading-tight tracking-tight text-gray-900 break-words">
             EXPLORE<br />PRODUCTS
           </h2>
         </div>
@@ -94,7 +94,7 @@ const ExploreProducts = () => {
         <motion.div 
           variants={itemVariants} 
           onClick={(e) => handleCategoryClick(e, 'sports')}
-          className="md:col-span-2 lg:col-span-6 h-52 relative overflow-hidden rounded-[2.5rem] bg-[#E8F0FE] p-10 flex items-center cursor-pointer group"
+          className="md:col-span-2 lg:col-span-6 h-52 relative overflow-hidden rounded-[2.5rem] bg-[#E8F0FE] p-6 sm:p-10 flex items-center cursor-pointer group"
         >
           <div className="z-20 relative">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Love the sport <br /> you are in</h3>
@@ -117,7 +117,7 @@ const ExploreProducts = () => {
             <div className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-100 transition-all duration-500 group-hover:bg-black group-hover:text-white"><ArrowUpRight size={16} /></div>
           </div>
           <div className="flex-1 flex items-center justify-center relative z-10">
-            <img src={images.chair} className="max-h-44 w-auto object-contain transition-transform duration-1000 group-hover:scale-110" alt="Chair" />
+            <img src={images.chair} className="max-h-44 w-auto max-w-full object-contain transition-transform duration-1000 group-hover:scale-110" alt="Chair" />
           </div>
           <div className="mt-4 flex justify-between items-end relative z-20">
             <div>
@@ -142,7 +142,7 @@ const ExploreProducts = () => {
             <div className="h-9 w-9 flex items-center justify-center rounded-xl border border-gray-100 transition-all duration-500 group-hover:bg-black group-hover:text-white"><ArrowUpRight size={16} /></div>
           </div>
           <div className="flex-1 flex items-center justify-center relative z-10">
-            <img src={images.camera} className="max-h-44 w-auto object-contain transition-transform duration-1000 group-hover:scale-110" alt="Camera" />
+            <img src={images.camera} className="max-h-44 w-auto max-w-full object-contain transition-transform duration-1000 group-hover:scale-110" alt="Camera" />
           </div>
           <div className="mt-4 flex justify-between items-end relative z-20">
             <div>
@@ -157,7 +157,7 @@ const ExploreProducts = () => {
         <motion.div 
           variants={itemVariants} 
           onClick={(e) => handleCategoryClick(e, 'laptop')}
-          className="md:col-span-2 lg:col-span-6 h-52 relative overflow-hidden rounded-[2.5rem] bg-[#FEF3C7] p-10 flex items-center cursor-pointer group"
+          className="md:col-span-2 lg:col-span-6 h-52 relative overflow-hidden rounded-[2.5rem] bg-[#FEF3C7] p-6 sm:p-10 flex items-center cursor-pointer group"
         >
           <div className="z-20 relative">
             <h3 className="text-xl font-semibold text-gray-800 leading-snug">Writing code?<br/>you are in</h3>
@@ -180,20 +180,20 @@ const ExploreProducts = () => {
             </div>
             <div className="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-50 shadow-sm transition-all duration-500 group-hover:bg-black group-hover:text-white"><ArrowUpRight size={14} /></div>
           </div>
-          <img src={images.lamp} className="h-28 w-auto object-contain mx-auto transition-transform duration-1000 group-hover:scale-110 z-10" alt="Lamp" />
+          <img src={images.lamp} className="h-28 w-auto max-w-full object-contain mx-auto transition-transform duration-1000 group-hover:scale-110 z-10" alt="Lamp" />
           <div className="flex justify-end z-20">
             <div className="bg-orange-400 text-white px-3 py-2 rounded-xl text-[11px] font-black">$85</div>
           </div>
         </motion.div>
 
         {/* Box 6: Tags */}
-        <motion.div variants={itemVariants} className="md:col-span-2 lg:col-span-4 bg-[#F1F3FF] rounded-[2.5rem] p-8 flex flex-col justify-between h-60">
+        <motion.div variants={itemVariants} className="md:col-span-2 lg:col-span-4 bg-[#F1F3FF] rounded-[2.5rem] p-6 sm:p-8 flex flex-col justify-between h-60">
           <div className="flex flex-wrap gap-2.5 z-20">
             {['Clothing', 'Pets', 'Laptop', 'Baby', 'School', 'Handmade', 'Iphone'].map(tag => (
               <button 
                 key={tag} 
                 onClick={(e) => handleCategoryClick(e, tag)}
-                className="bg-white px-5 py-2 rounded-full text-[10px] font-bold text-gray-500 shadow-sm hover:bg-gray-900 hover:text-white transition-all duration-500 active:scale-95"
+                className="bg-white px-4 sm:px-5 py-2 rounded-full text-[10px] font-bold text-gray-500 shadow-sm hover:bg-gray-900 hover:text-white transition-all duration-500 active:scale-95"
               >
                 {tag}
               </button>
@@ -206,7 +206,7 @@ const ExploreProducts = () => {
         <motion.div 
           variants={itemVariants} 
           onClick={(e) => handleCategoryClick(e, 'furniture')}
-          className="md:col-span-2 lg:col-span-5 h-60 relative overflow-hidden rounded-[2.5rem] bg-[#E0E7FF] p-10 flex items-center cursor-pointer group"
+          className="md:col-span-2 lg:col-span-5 h-60 relative overflow-hidden rounded-[2.5rem] bg-[#E0E7FF] p-6 sm:p-10 flex items-center cursor-pointer group"
         >
           <div className="z-20 relative">
             <h3 className="text-2xl font-semibold text-gray-800 leading-tight">Find the best<br/>furniture!</h3>

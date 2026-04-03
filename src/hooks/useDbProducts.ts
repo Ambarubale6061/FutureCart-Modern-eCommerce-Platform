@@ -1,5 +1,17 @@
-import { useEffect, useState } from "react";
+/**
+ * useDbProducts.ts
+ *
+ * The useDbProducts *hook* has been removed — ProductsContext now owns all
+ * merged product state and Realtime subscriptions.
+ *
+ * The standalone async fetchers below are still used by AdminDashboard
+ * for paginated / filtered server-side queries that are too large to pull
+ * through the context (e.g. ALL products including pending ones).
+ */
+
 import { supabase } from "@/integrations/supabase/client";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface DbProduct {
   id: string;
@@ -18,34 +30,13 @@ export interface DbProduct {
   specs: Record<string, string>;
   highlights: string[];
   in_stock: boolean;
+  approval_status?: string;
+  seller_name?: string | null;
+  seller_email?: string | null;
 }
 
-export const useDbProducts = () => {
-  const [products, setProducts] = useState<DbProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+// ─── Standalone fetchers (used by AdminDashboard and similar) ─────────────────
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data } = await supabase
-          .from("products")
-          .select("*")
-          .eq("approval_status", "approved")
-          .order("created_at", { ascending: false });
-        setProducts((data || []) as DbProduct[]);
-      } catch (error) {
-        console.error("Error fetching DB products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  return { products, loading };
-};
-
-// Standalone fetchers (for use in pages)
 export const fetchProductById = async (id: string): Promise<DbProduct | null> => {
   const { data, error } = await supabase
     .from("products")
@@ -68,14 +59,18 @@ export const fetchFilteredProducts = async (filters: {
   page?: number;
   pageSize?: number;
 }) => {
-  let query = supabase.from("products").select("*", { count: "exact" }).eq("approval_status", "approved");
+  let query = supabase
+    .from("products")
+    .select("*", { count: "exact" })
+    .eq("approval_status", "approved");
+
   if (filters.category) query = query.eq("category", filters.category);
-  if (filters.brands && filters.brands.length) query = query.in("brand", filters.brands);
+  if (filters.brands?.length) query = query.in("brand", filters.brands);
   if (filters.minPrice !== undefined) query = query.gte("price", filters.minPrice);
   if (filters.maxPrice !== undefined) query = query.lte("price", filters.maxPrice);
-  if (filters.minRating !== undefined && filters.minRating > 0) query = query.gte("rating", filters.minRating);
-  if (filters.minDiscount !== undefined && filters.minDiscount > 0) query = query.gte("discount", filters.minDiscount);
-  
+  if (filters.minRating) query = query.gte("rating", filters.minRating);
+  if (filters.minDiscount) query = query.gte("discount", filters.minDiscount);
+
   switch (filters.sortBy) {
     case "price-low": query = query.order("price", { ascending: true }); break;
     case "price-high": query = query.order("price", { ascending: false }); break;
@@ -83,20 +78,29 @@ export const fetchFilteredProducts = async (filters: {
     case "discount": query = query.order("discount", { ascending: false }); break;
     default: query = query.order("created_at", { ascending: false });
   }
-  
+
   const page = filters.page || 1;
   const pageSize = filters.pageSize || 24;
   const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
-  
+  query = query.range(from, from + pageSize - 1);
+
   const { data, error, count } = await query;
   if (error || !data) return { products: [], total: 0 };
   return { products: data as DbProduct[], total: count || 0 };
 };
 
-export const searchProductsDb = async (queryText: string, sortBy?: string, page: number = 1, pageSize: number = 24) => {
-  let query = supabase.from("products").select("*", { count: "exact" }).eq("approval_status", "approved").textSearch("name", queryText, { config: "english" });
+export const searchProductsDb = async (
+  queryText: string,
+  sortBy?: string,
+  page = 1,
+  pageSize = 24
+) => {
+  let query = supabase
+    .from("products")
+    .select("*", { count: "exact" })
+    .eq("approval_status", "approved")
+    .textSearch("name", queryText, { config: "english" });
+
   switch (sortBy) {
     case "price-low": query = query.order("price", { ascending: true }); break;
     case "price-high": query = query.order("price", { ascending: false }); break;
@@ -104,9 +108,10 @@ export const searchProductsDb = async (queryText: string, sortBy?: string, page:
     case "discount": query = query.order("discount", { ascending: false }); break;
     default: query = query.order("created_at", { ascending: false });
   }
+
   const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
+  query = query.range(from, from + pageSize - 1);
+
   const { data, error, count } = await query;
   if (error || !data) return { products: [], total: 0 };
   return { products: data as DbProduct[], total: count || 0 };

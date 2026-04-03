@@ -7,6 +7,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RecentlyViewedProvider } from "@/contexts/RecentlyViewedContext";
+import { ProductsProvider } from "@/contexts/ProductsContext";
 import ChatBot from "@/components/ChatBot";
 import ScrollToTop from "@/components/ScrollToTop";
 import BackToTop from "@/components/BackToTop";
@@ -34,42 +35,49 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <RecentlyViewedProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                {/* Ensures every page navigation starts at the top smoothly */}
-                <ScrollToTop /> 
-                <div className="flex flex-col min-h-screen">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/products" element={<ProductListing />} />
-                    <Route path="/product/:id" element={<ProductDetail />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
-                    <Route path="/search" element={<SearchResults />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/logout" element={<Logout />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/order-tracking/:orderNumber" element={<OrderTracking />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/seller" element={<SellerDashboard />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </div>
-                <ChatBot />
-                <BackToTop />
-              </BrowserRouter>
-            </RecentlyViewedProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
+      {/*
+        ProductsProvider sits outside AuthProvider so the catalogue
+        starts loading immediately — before the user even logs in.
+        It merges public/data/products.json with approved Supabase rows
+        and keeps both sources in sync via Realtime.
+      */}
+      <ProductsProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <RecentlyViewedProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ScrollToTop />
+                  <div className="flex flex-col min-h-screen">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/products" element={<ProductListing />} />
+                      <Route path="/product/:id" element={<ProductDetail />} />
+                      <Route path="/cart" element={<Cart />} />
+                      <Route path="/wishlist" element={<Wishlist />} />
+                      <Route path="/search" element={<SearchResults />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/logout" element={<Logout />} />
+                      <Route path="/signup" element={<Signup />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/checkout" element={<Checkout />} />
+                      <Route path="/order-tracking/:orderNumber" element={<OrderTracking />} />
+                      <Route path="/payment-success" element={<PaymentSuccess />} />
+                      <Route path="/admin" element={<AdminDashboard />} />
+                      <Route path="/seller" element={<SellerDashboard />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </div>
+                  <ChatBot />
+                  <BackToTop />
+                </BrowserRouter>
+              </RecentlyViewedProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </ProductsProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

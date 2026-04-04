@@ -27,15 +27,11 @@
 
 ## 🏠 Homepage UI
 
-![Homepage](./screenshots/home.png)
-
-## 🛍️ Product Listing
-
-![Product Listing](./screenshots/products.png)
+![Homepage](./public/home.png)
 
 ## 🛒 Cart & Checkout
 
-![Cart](./screenshots/cart.png)
+![Cart](./public/cart.png)
 
 ---
 
@@ -299,8 +295,6 @@ Deploy easily on:
 - Vercel
 - Netlify
 
-> Deployment link will be added soon
-
 ---
 
 # 🔮 Future Improvements
@@ -333,19 +327,5 @@ MIT License
 **Ambar Ubale**
 
 ---
-
-# ⭐ Support
-
-If you like this project:
-
-- Star ⭐ the repo
-- Share 🔗
-- Contribute 💡
-
----
-
-<div align="center">
-  Made with ❤️ using React + Supabase
-</div>
 
 🔥 _FutureCart is a modern, scalable, real-time eCommerce platform built for production-level applications._

@@ -6,7 +6,7 @@
 
 **A full-stack, feature-rich eCommerce platform built with React, TypeScript, and Supabase.**
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-blue?style=for-the-badge)](https://your-deploy-link.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-blue?style=for-the-badge)](https://futurecart-e-commerce.vercel.app/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
@@ -19,7 +19,7 @@
 
 # 🌐 Live Demo
 
-> 🔗 Deployment link will be added here
+> 🔗 [Deployment link will be added here](https://futurecart-e-commerce.vercel.app/)
 
 ---
 

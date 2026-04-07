@@ -297,16 +297,6 @@ Deploy easily on:
 
 ---
 
-# 🔮 Future Improvements
-
-- Payment gateway (Stripe / Razorpay)
-- Order history page
-- Reviews & ratings
-- AI recommendations
-- PWA support
-
----
-
 # 🤝 Contributing
 
 1. Fork repo

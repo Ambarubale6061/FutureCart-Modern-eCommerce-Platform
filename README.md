@@ -306,15 +306,21 @@ Deploy easily on:
 
 ---
 
-# 📄 License
+## 📄 License
 
-MIT License
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Ambar Ubale**
+
+- 💼 Full Stack Developer
+- 🌐 Portfolio: https://ambarportfolio.vercel.app/
+- 🔗 LinkedIn: https://www.linkedin.com/in/ambar-ubale-137214230
+
+> Passionate about building real-world scalable apps & modern UI experiences.
 
 ---
 

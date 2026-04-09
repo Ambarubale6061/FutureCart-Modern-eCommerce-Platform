@@ -279,6 +279,55 @@ export type Database = {
         }
         Relationships: []
       }
+      // ... (keep entire existing file, insert this block inside Tables: { ... })
+
+      product_reviews: {
+        Row: {
+          id:            string
+          product_id:    string
+          user_id:       string
+          order_id:      string
+          rating:        number
+          title:         string | null
+          body:          string | null
+          reviewer_name: string | null
+          created_at:    string
+          updated_at:    string
+        }
+        Insert: {
+          id?:            string
+          product_id:     string
+          user_id:        string
+          order_id:       string
+          rating:         number
+          title?:         string | null
+          body?:          string | null
+          reviewer_name?: string | null
+          created_at?:    string
+          updated_at?:    string
+        }
+        Update: {
+          id?:            string
+          product_id?:    string
+          user_id?:       string
+          order_id?:      string
+          rating?:        number
+          title?:         string | null
+          body?:          string | null
+          reviewer_name?: string | null
+          created_at?:    string
+          updated_at?:    string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string

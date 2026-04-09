@@ -114,8 +114,9 @@ const HeroSection = () => {
                     <span className="text-base text-gray-300 line-through">$1099</span>
                   </div>
 
+                  {/* Updated Link to match 'Explore all products' */}
                   <Link 
-                    to="/product/iphone-15"
+                    to="/products"
                     className="group flex items-center gap-2 pt-2 text-sm font-medium text-gray-500 transition-colors hover:text-black"
                   >
                     View more

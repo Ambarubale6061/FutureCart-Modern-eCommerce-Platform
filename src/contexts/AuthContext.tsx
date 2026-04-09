@@ -1,80 +1,145 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import {
+  createContext, useContext, useState, useEffect,
+  useCallback, ReactNode,
+} from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User as SupaUser } from "@supabase/supabase-js";
 
-// ... (keep all interfaces same as before)
+/* ─── Exported types (used by OrderHistory, Profile, etc.) ─── */
+export interface Profile {
+  full_name:  string | null;
+  phone:      string | null;
+  avatar_url: string | null;
+}
 
+export interface Address {
+  id:         string;
+  name:       string;
+  phone:      string;
+  street:     string;
+  city:       string;
+  state:      string;
+  pincode:    string;
+  type:       string;
+  is_default: boolean;
+}
+
+export interface OrderItem {
+  product_id:    string;
+  product_name:  string;
+  price:         number;
+  quantity:      number;
+  product_image: string | null;
+}
+
+export interface Order {
+  id:               string;
+  order_number:     string;
+  status:           string;
+  total_amount:     number;
+  discount_amount:  number;
+  delivery_charge:  number;
+  payment_method:   string | null;
+  address:          any;
+  created_at:       string;
+  updated_at:       string;
+  items?:           OrderItem[];
+}
+
+interface AuthContextType {
+  user:            SupaUser | null;
+  profile:         Profile | null;
+  isAuthenticated: boolean;
+  isAdmin:         boolean;
+  loading:         boolean;
+  addresses:       Address[];
+  orders:          Order[];
+  login:           (email: string, password: string) => Promise<{ error?: string }>;
+  signup:          (name: string, email: string, password: string) => Promise<{ error?: string }>;
+  logout:          () => Promise<void>;
+  updateProfile:   (updates: Partial<Profile>) => Promise<void>;
+  addAddress:      (address: Omit<Address, "id">) => Promise<void>;
+  removeAddress:   (id: string) => Promise<void>;
+  fetchOrders:     () => Promise<void>;
+  fetchAddresses:  () => Promise<void>;
+}
+
+/* ─── Constants ─── */
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 const ADMIN_EMAIL = "futurecart@gmail.com";
 
+/* ─── Provider ─── */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<SupaUser | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [user,      setUser]      = useState<SupaUser | null>(null);
+  const [profile,   setProfile]   = useState<Profile | null>(null);
+  const [isAdmin,   setIsAdmin]   = useState(false);
+  const [loading,   setLoading]   = useState(true);
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders,    setOrders]    = useState<Order[]>([]);
 
   const fetchProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase.from("profiles").select("*").eq("user_id", userId).single();
+    const { data } = await supabase
+      .from("profiles").select("*").eq("user_id", userId).single();
     if (data) setProfile({ full_name: data.full_name, phone: data.phone, avatar_url: data.avatar_url });
   }, []);
 
-  const checkAdmin = useCallback((userEmail: string | undefined) => {
-    setIsAdmin(userEmail === ADMIN_EMAIL);
+  const checkAdmin = useCallback((email: string | undefined) => {
+    setIsAdmin(email === ADMIN_EMAIL);
   }, []);
 
   const fetchAddresses = useCallback(async () => {
-    if (!user) return;
-    const { data } = await supabase.from("addresses").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+    const { data: { user: u } } = await supabase.auth.getUser();
+    if (!u) return;
+    const { data } = await supabase
+      .from("addresses").select("*").eq("user_id", u.id)
+      .order("created_at", { ascending: false });
     if (data) setAddresses(data as Address[]);
-  }, [user]);
+  }, []);
 
   const fetchOrders = useCallback(async () => {
-    if (!user) return;
+    const { data: { user: u } } = await supabase.auth.getUser();
+    if (!u) return;
     const { data: ordersData } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("user_id", user.id)
+      .from("orders").select("*")
+      .eq("user_id", u.id)
       .order("created_at", { ascending: false });
-    if (ordersData) {
-      const ordersWithItems = await Promise.all(
-        ordersData.map(async (order) => {
-          const { data: items } = await supabase
-            .from("order_items")
-            .select("product_name, price, quantity, product_image")
-            .eq("order_id", order.id);
-          return { ...order, items: items || [] } as Order;
-        })
-      );
-      setOrders(ordersWithItems);
-    }
-  }, [user]);
+    if (!ordersData) return;
 
+    const ordersWithItems = await Promise.all(
+      ordersData.map(async (order) => {
+        const { data: items } = await supabase
+          .from("order_items")
+          .select("product_id, product_name, price, quantity, product_image")
+          .eq("order_id", order.id);
+        return { ...order, items: items || [] } as Order;
+      })
+    );
+    setOrders(ordersWithItems);
+  }, []);
+
+  /* ─── Auth state listener ─── */
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const u = session?.user ?? null;
-      setUser(u);
-      if (u) {
-        await fetchProfile(u.id);
-        checkAdmin(u.email);
-      } else {
-        setProfile(null);
-        setIsAdmin(false);
-        setAddresses([]);
-        setOrders([]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const u = session?.user ?? null;
+        setUser(u);
+        if (u) {
+          await fetchProfile(u.id);
+          checkAdmin(u.email);
+        } else {
+          setProfile(null);
+          setIsAdmin(false);
+          setAddresses([]);
+          setOrders([]);
+        }
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null;
       setUser(u);
-      if (u) {
-        fetchProfile(u.id);
-        checkAdmin(u.email);
-      }
+      if (u) { fetchProfile(u.id); checkAdmin(u.email); }
       setLoading(false);
     });
 
@@ -82,12 +147,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchProfile, checkAdmin]);
 
   useEffect(() => {
-    if (user) {
-      fetchAddresses();
-      fetchOrders();
-    }
+    if (user) { fetchAddresses(); fetchOrders(); }
   }, [user, fetchAddresses, fetchOrders]);
 
+  /* ─── Auth actions ─── */
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
@@ -96,49 +159,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signup = async (name: string, email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
-      email,
-      password,
+      email, password,
       options: { data: { full_name: name } },
     });
     if (error) return { error: error.message };
     return {};
   };
 
-  // 🔥 BULLETPROOF LOGOUT
   const logout = async () => {
-    try {
-      // 1. Call Supabase signOut (but don't rely on it)
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.error("Supabase signOut error:", err);
-    }
-    
-    // 2. Manually remove all Supabase-related storage
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && (key.includes("supabase") || key.includes("sb-"))) {
-        keysToRemove.push(key);
+    try { await supabase.auth.signOut(); } catch { /* intentional */ }
+
+    // Clear all supabase storage
+    [localStorage, sessionStorage].forEach((store) => {
+      const keys: string[] = [];
+      for (let i = 0; i < store.length; i++) {
+        const k = store.key(i);
+        if (k && (k.includes("supabase") || k.includes("sb-"))) keys.push(k);
       }
-    }
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-    
-    // Also clear sessionStorage
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      if (key && (key.includes("supabase") || key.includes("sb-"))) {
-        sessionStorage.removeItem(key);
-      }
-    }
-    
-    // 3. Reset all React state immediately
-    setUser(null);
-    setProfile(null);
-    setIsAdmin(false);
-    setAddresses([]);
-    setOrders([]);
-    
-    // 4. Force a full page reload and redirect to home
+      keys.forEach((k) => store.removeItem(k));
+    });
+
+    setUser(null); setProfile(null); setIsAdmin(false);
+    setAddresses([]); setOrders([]);
     window.location.replace("/");
   };
 
@@ -162,7 +204,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       user, profile, isAuthenticated: !!user, isAdmin, loading,
-      addresses, orders, login, signup, logout, updateProfile,
+      addresses, orders,
+      login, signup, logout, updateProfile,
       addAddress, removeAddress, fetchOrders, fetchAddresses,
     }}>
       {children}

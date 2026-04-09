@@ -31,7 +31,7 @@ const ExploreProducts = () => {
     camera: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop",
     lamp: "https://images.unsplash.com/photo-1534073828943-f801091bb18c?q=80&w=800&auto=format&fit=crop",
     sofa: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop",
-   avatars: [
+    avatars: [
   "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop", // Male - Professional
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop", // Female - Friendly
   "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=150&auto=format&fit=crop"  // Male - Casual
@@ -39,9 +39,9 @@ const ExploreProducts = () => {
   };
 
   const handleCategoryClick = (e, category) => {
-    // Prevent overlapping clicks if necessary
+    // UPDATED: Now all category clicks lead to /products
     e.stopPropagation();
-    navigate(`/products?category=${category.toLowerCase()}`);
+    navigate(`/products`);
   };
 
   return (
